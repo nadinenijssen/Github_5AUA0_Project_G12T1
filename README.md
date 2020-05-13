@@ -5,7 +5,7 @@ Group 12, Team 1: Kevin and Nadine
 Our goal is to find the best method to generate the identity embeddings for one-shot multiple-object tracking.
 
 ## Google Drive and Google Colab
-We work in Google Colab combined with Google Drive and GitHub. The Notebook "5AUA0_Project.ipynb" is used to run code, train and evaluate models.
+We work in Google Colab combined with Google Drive and GitHub. The Notebook "5AUA0_Project.ipynb" is used to run code, train and evaluate models. The notebook should be placed in the same folder as the GitHub repo (so not inside the GitHub repo!).
 
 ## Baseline model
 We use FairMOT as our baseline.
