@@ -19,6 +19,11 @@ from datasets.dataset.jde import JointDataset
 from trains.mot import MotTrainer
 
 
+# our custom modifications to pose_hrnet and MOTtrainer
+from models.networks.pose_hrnet_ours import get_pose_net as get_pose_net_hrnet_ours
+from trains.mot_ours import MotTrainer as MotTrainer_ours
+
+
 def main(opt):
     torch.manual_seed(opt.seed)
     torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.test
@@ -39,7 +44,8 @@ def main(opt):
     opt.device = torch.device("cuda" if opt.gpus[0] >= 0 else "cpu")
 
     print("Creating model...")
-    model = create_model(opt.arch, opt.heads, opt.head_conv)
+    # model = create_model(opt.arch, opt.heads, opt.head_conv)
+    model = get_pose_net_hrnet_ours(num_layers=18, heads=opt.heads, head_conv=opt.head_conv)
     optimizer = torch.optim.Adam(model.parameters(), opt.lr)
     start_epoch = 0
     if opt.load_model != "":
@@ -58,7 +64,8 @@ def main(opt):
     )
 
     print("Starting training...")
-    trainer = MotTrainer(opt, model, optimizer)
+    #trainer = MotTrainer(opt, model, optimizer)
+    trainer = MotTrainer_ours(opt, model, optimizer)
     trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
 
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
