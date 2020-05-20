@@ -15,7 +15,8 @@ from models.model import create_model, load_model, save_model
 from models.data_parallel import DataParallel
 from logger import Logger
 from datasets.dataset_factory import get_dataset
-from trains.train_factory import train_factory
+# from trains.train_factory import train_factory
+from trains.mot import MotTrainer
 
 
 def main(opt):
@@ -24,11 +25,14 @@ def main(opt):
 
     print('Setting up data...')
     Dataset = get_dataset(opt.dataset, opt.task)
-    f = open(opt.data_cfg)
-    data_config = json.load(f)
-    trainset_paths = data_config['train']
-    dataset_root = data_config['root']
-    f.close()
+#     f = open(opt.data_cfg)
+#     data_config = json.load(f)
+#     trainset_paths = data_config['train']
+    trainset_paths = {"mot17":"./data/mot17.train"}
+#     dataset_root = data_config['root']
+    dataset_root = opt.data_dir
+#     f.close()
+    
     transforms = T.Compose([T.ToTensor()])
     dataset = Dataset(opt, dataset_root, trainset_paths, (1088, 608), augment=True, transforms=transforms)
     opt = opts().update_dataset_info_and_set_heads(opt, dataset)
@@ -59,10 +63,11 @@ def main(opt):
     )
 
     print('Starting training...')
-    Trainer = train_factory[opt.task]
-    trainer = Trainer(opt, model, optimizer)
+#     Trainer = train_factory[opt.task]
+#     trainer = Trainer(opt, model, optimizer)
+    trainer = MotTrainer(opt, model, optimizer)
     trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
-    best = 1e10
+#     best = 1e10
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
         mark = epoch if opt.save_all else 'last'
         log_dict_train, _ = trainer.train(epoch, train_loader)
@@ -92,6 +97,9 @@ def main(opt):
 
 
 if __name__ == '__main__':
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
+#     os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
     opt = opts().parse()
+    print('gpus', ','.join(map(str, opt.gpus)))
+    os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, opt.gpus))
+
     main(opt)
