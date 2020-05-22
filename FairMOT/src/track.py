@@ -88,7 +88,7 @@ def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_im
 def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), exp_name='demo',
          save_images=False, save_videos=False, show_image=True):
     logger.setLevel(logging.INFO)
-    result_root = os.path.join(data_root, '..', 'results', exp_name)
+    result_root = os.path.join(data_root, '..', '..', '..', '..', 'Github_5AUA0_Project_G12T1', 'FairMOT', 'results', exp_name)
     mkdir_if_missing(result_root)
     data_type = 'mot'
 
@@ -148,6 +148,7 @@ if __name__ == '__main__':
                       TUD-Campus
                       TUD-Stadtmitte'''
         data_root = os.path.join(opt.data_dir, 'MOT15/images/train')
+        exp_name = 'MOT15_val1'
     else:
         seqs_str = '''MOT16-02
                       MOT16-04
@@ -157,6 +158,7 @@ if __name__ == '__main__':
                       MOT16-11
                       MOT16-13'''
         data_root = os.path.join(opt.data_dir, 'MOT16/train')
+        exp_name = 'MOT16_val'
     if opt.test_mot16:
         seqs_str = '''MOT16-01
                       MOT16-03
@@ -166,6 +168,7 @@ if __name__ == '__main__':
                       MOT16-12
                       MOT16-14'''
         data_root = os.path.join(opt.data_dir, 'MOT16/test')
+        exp_name = 'MOT16_test'
     if opt.test_mot15:
         seqs_str = '''ADL-Rundle-1
                       ADL-Rundle-3
@@ -179,6 +182,7 @@ if __name__ == '__main__':
                       TUD-Crossing
                       Venice-1'''
         data_root = os.path.join(opt.data_dir, 'MOT15/images/test')
+        exp_name = 'MOT15_test'
     if opt.test_mot17:
         seqs_str = '''MOT17-01-SDP
                       MOT17-03-SDP
@@ -188,6 +192,7 @@ if __name__ == '__main__':
                       MOT17-12-SDP
                       MOT17-14-SDP'''
         data_root = os.path.join(opt.data_dir, 'MOT17/images/test')
+        exp_name = 'MOT17_test'
     if opt.val_mot17:
         seqs_str = '''MOT17-02-SDP
                       MOT17-04-SDP
@@ -197,6 +202,7 @@ if __name__ == '__main__':
                       MOT17-11-SDP
                       MOT17-13-SDP'''
         data_root = os.path.join(opt.data_dir, 'MOT17/images/train')
+        exp_name = 'MOT17_val'
     if opt.val_mot15:
         seqs_str = '''KITTI-13
                       KITTI-17
@@ -210,6 +216,7 @@ if __name__ == '__main__':
                       ETH-Pedcross2
                       TUD-Stadtmitte'''
         data_root = os.path.join(opt.data_dir, 'MOT15/images/train')
+        exp_name = 'MOT15_val2'
     if opt.val_mot20:
         seqs_str = '''MOT20-01
                       MOT20-02
@@ -217,6 +224,7 @@ if __name__ == '__main__':
                       MOT20-05
                       '''
         data_root = os.path.join(opt.data_dir, 'MOT20/images/train')
+        exp_name = 'MOT20_val'
     if opt.test_mot20:
         seqs_str = '''MOT20-04
                       MOT20-06
@@ -224,12 +232,13 @@ if __name__ == '__main__':
                       MOT20-08
                       '''
         data_root = os.path.join(opt.data_dir, 'MOT20/images/test')
+        exp_name = 'MOT20_test'
     seqs = [seq.strip() for seq in seqs_str.split()]
 
     main(opt,
          data_root=data_root,
          seqs=seqs,
-         exp_name='MOT15_val_all_dla34',
+         exp_name='_'.join([exp_name, opt.arch, opt.exp_id])  #'MOT15_val_all_dla34',
          show_image=False,
          save_images=False,
          save_videos=False)
