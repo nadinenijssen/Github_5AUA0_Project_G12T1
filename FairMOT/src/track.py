@@ -238,7 +238,7 @@ if __name__ == '__main__':
     main(opt,
          data_root=data_root,
          seqs=seqs,
-         exp_name='_'.join([exp_name, opt.arch, opt.exp_id])  #'MOT15_val_all_dla34',
+         exp_name='_'.join([exp_name, opt.arch, opt.exp_id]),
          show_image=False,
          save_images=False,
          save_videos=False)
