@@ -107,7 +107,9 @@ def test_emb(
     return tar_at_far
 
 if __name__ == '__main__':
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+#     os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     opt = opts().init()
+    print("gpus", ",".join(map(str, opt.gpus)))
+    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, opt.gpus))
     with torch.no_grad():
         map = test_emb(opt, batch_size=4)
