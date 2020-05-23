@@ -31,13 +31,15 @@ def test_emb(
         img_size=(1088, 608),
         print_interval=40,
 ):
-    data_cfg = opt.data_cfg
-    f = open(data_cfg)
-    data_cfg_dict = json.load(f)
-    f.close()
-    nC = 1
-    test_paths = data_cfg_dict['test_emb']
-    dataset_root = data_cfg_dict['root']
+#     data_cfg = opt.data_cfg
+#     f = open(data_cfg)
+#     data_cfg_dict = json.load(f)
+#     f.close()
+#     nC = 1
+#     test_paths = data_cfg_dict['test_emb']
+#     dataset_root = data_cfg_dict['root']
+    test_paths = {"mot17": "./data/mot17.val"}
+    dataset_root = opt.data_dir
     if opt.gpus[0] >= 0:
         opt.device = torch.device('cuda')
     else:
