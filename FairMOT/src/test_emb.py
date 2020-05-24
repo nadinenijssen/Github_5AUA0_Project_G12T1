@@ -91,10 +91,15 @@ def test_emb(
     assert len(embedding) == n
     
     # save embeddings (own code)
-    exp_name='_'.join(['embeddings', 'MOT17_val', opt.arch, opt.exp_id])
-    filename='.'.join([exp_name, 'pt'])
-    result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', filename)
-    torch.save(embedding, result_filename)   
+    embeddings_exp_name = '_'.join(['embeddings', 'MOT17_val', opt.arch, opt.exp_id])
+    embeddings_filename = '.'.join([embeddings_exp_name, 'pt'])
+    embeddings_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', embeddings_filename)
+    torch.save(embedding, embeddings_result_filename)
+    
+    labels_exp_name = '_'.join(['labels', 'MOT17_val', opt.arch, opt.exp_id])
+    labels_filename = '.'.join([labels_exp_name, 'pt'])
+    labels_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', labels_filename)
+    torch.save(embedding, labels_result_filename)
     
     embedding = F.normalize(embedding, dim=1)
     pdist = torch.mm(embedding, embedding.t()).cpu().numpy()
