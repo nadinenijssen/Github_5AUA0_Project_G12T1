@@ -89,7 +89,13 @@ def test_emb(
     n = len(id_labels)
     print(n, len(embedding))
     assert len(embedding) == n
-
+    
+    # save embeddings (own code)
+    exp_name='_'.join([embeddings, MOT17_val, opt.arch, opt.exp_id])
+    filename='.'.join([exp_name, pt])
+    result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', filename)
+    torch.save(embedding, results_filename)   
+    
     embedding = F.normalize(embedding, dim=1)
     pdist = torch.mm(embedding, embedding.t()).cpu().numpy()
     gt = id_labels.expand(n, n).eq(id_labels.expand(n, n).t()).numpy()
