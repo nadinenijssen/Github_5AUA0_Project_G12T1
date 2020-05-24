@@ -99,7 +99,7 @@ def test_emb(
     labels_exp_name = '_'.join(['labels', 'MOT17_val', opt.arch, opt.exp_id])
     labels_filename = '.'.join([labels_exp_name, 'pt'])
     labels_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', labels_filename)
-    torch.save(embedding, labels_result_filename)
+    torch.save(id_labels, labels_result_filename)
     
     embedding = F.normalize(embedding, dim=1)
     pdist = torch.mm(embedding, embedding.t()).cpu().numpy()
