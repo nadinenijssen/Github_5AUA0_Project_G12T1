@@ -91,7 +91,7 @@ def test_emb(
     assert len(embedding) == n
     
     # save embeddings (own code)
-    exp_name='_'.join([embeddings, MOT17_val, opt.arch, opt.exp_id])
+    exp_name='_'.join(['embeddings', 'MOT17_val', opt.arch, opt.exp_id])
     filename='.'.join([exp_name, pt])
     result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', filename)
     torch.save(embedding, results_filename)   
