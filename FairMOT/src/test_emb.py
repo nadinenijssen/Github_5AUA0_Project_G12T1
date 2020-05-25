@@ -116,6 +116,13 @@ def test_emb(
     tar_at_far = [interp(x) for x in far_levels]
     for f, fa in enumerate(far_levels):
         print('TPR@FAR={:.7f}: {:.4f}'.format(fa, tar_at_far[f]))
+        
+    # save TPR (own code)
+    TPR_exp_name = '_'.join(['TPR', 'MOT17_val', opt.arch, opt.exp_id])
+    TPR_filename = '.'.join([TPR_exp_name, 'pt'])
+    TPR_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', TPR_filename)
+    torch.save(tar_at_far, TPR_result_filename)
+
     return tar_at_far
 
 if __name__ == '__main__':
