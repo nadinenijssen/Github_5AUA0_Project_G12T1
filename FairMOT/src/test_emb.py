@@ -81,6 +81,11 @@ def test_emb(
                 'Extracting {}/{}, # of instances {}, time {:.2f} sec.'.format(batch_i, len(dataloader), len(id_labels),
                                                                                time.time() - t))
 
+    embeddings1_exp_name = '_'.join(['embeddings1', 'MOT17_val', opt.arch, opt.exp_id])
+    embeddings1_filename = '.'.join([embeddings1_exp_name, 'pt'])
+    embeddings1_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', embeddings1_filename)
+    torch.save(embedding, embeddings1_result_filename)
+        
     print('Computing pairwise similairity...')
     if len(embedding) < 1:
         return None
