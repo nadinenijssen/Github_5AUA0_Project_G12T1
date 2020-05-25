@@ -29,7 +29,7 @@ def main(opt):
     torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.test
 
     print("Setting up data...")
-    trainset_paths = {"mot17": "./data/mot17.train"}
+    trainset_paths = {"mot17": "./data/mot17.training"}
     dataset_root = opt.data_dir
     transforms = T.Compose([T.ToTensor()])
     dataset = JointDataset(
