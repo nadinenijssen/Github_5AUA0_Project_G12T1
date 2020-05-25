@@ -80,11 +80,6 @@ def test_emb(
             print(
                 'Extracting {}/{}, # of instances {}, time {:.2f} sec.'.format(batch_i, len(dataloader), len(id_labels),
                                                                                time.time() - t))
-
-    embeddings1_exp_name = '_'.join(['embeddings1', 'MOT17_val', opt.arch, opt.exp_id])
-    embeddings1_filename = '.'.join([embeddings1_exp_name, 'pt'])
-    embeddings1_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', embeddings1_filename)
-    torch.save(embedding, embeddings1_result_filename)
         
     print('Computing pairwise similairity...')
     if len(embedding) < 1:
@@ -100,7 +95,7 @@ def test_emb(
     embeddings_filename = '.'.join([embeddings_exp_name, 'pt'])
     embeddings_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', embeddings_filename)
     torch.save(embedding, embeddings_result_filename)
-    
+    # save targets (own code)
     labels_exp_name = '_'.join(['labels', 'MOT17_val', opt.arch, opt.exp_id])
     labels_filename = '.'.join([labels_exp_name, 'pt'])
     labels_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', labels_filename)
