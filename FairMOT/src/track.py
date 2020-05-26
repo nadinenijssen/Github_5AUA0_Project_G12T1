@@ -203,6 +203,19 @@ if __name__ == '__main__':
                       MOT17-13-SDP'''
         data_root = os.path.join(opt.data_dir, 'MOT17/images/train')
         exp_name = 'MOT17_val'
+    if opt.training_mot17:
+        seqs_str = '''MOT17-04-SDP
+                      MOT17-05-SDP
+                      MOT17-09-SDP
+                      MOT17-10-SDP
+                      MOT17-13-SDP'''
+        data_root = os.path.join(opt.data_dir, 'MOT17/images/train')
+        exp_name = 'MOT17_training'
+    if opt.validation_mot17:
+        seqs_str = '''MOT17-02-SDP
+                      MOT17-11-SDP'''
+        data_root = os.path.join(opt.data_dir, 'MOT17/images/train')
+        exp_name = 'MOT17_validation'
     if opt.val_mot15:
         seqs_str = '''KITTI-13
                       KITTI-17
