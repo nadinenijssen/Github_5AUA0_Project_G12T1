@@ -45,7 +45,7 @@ class MotLoss(torch.nn.Module):
 
             hm_loss += self.crit(output['hm'], batch['hm']) / opt.num_stacks
             if opt.wh_weight > 0:
-                if opt.dense_wh:
+                if opt.dense_wh: #not used i guess 
                     mask_weight = batch['dense_wh_mask'].sum() + 1e-4
                     wh_loss += (
                                    self.crit_wh(output['wh'] * batch['dense_wh_mask'],
@@ -61,12 +61,12 @@ class MotLoss(torch.nn.Module):
                                           batch['ind'], batch['reg']) / opt.num_stacks
 
             if opt.id_weight > 0:
-                id_head = _tranpose_and_gather_feat(output['id'], batch['ind'])
-                id_head = id_head[batch['reg_mask'] > 0].contiguous()
-                id_head = self.emb_scale * F.normalize(id_head)
-                id_target = batch['ids'][batch['reg_mask'] > 0]
-                id_output = self.classifier(id_head).contiguous()
-                id_loss += self.IDLoss(id_output, id_target)
+                id_head = _tranpose_and_gather_feat(output['id'], batch['ind']) #convert E to E_xy i think?
+                id_head = id_head[batch['reg_mask'] > 0].contiguous() # remove part of tensor without labels ?
+                id_head = self.emb_scale * F.normalize(id_head) #  normalize 
+                id_target = batch['ids'][batch['reg_mask'] > 0] # get target id where reg_mask = 1 meaning there was a label
+                id_output = self.classifier(id_head).contiguous() # contigious is so that indexes are corrected for next operations
+                id_loss += self.IDLoss(id_output, id_target) # do crossentropy with target id and 
                 #id_loss += self.IDLoss(id_output, id_target) + self.TriLoss(id_head, id_target)
 
         #loss = opt.hm_weight * hm_loss + opt.wh_weight * wh_loss + opt.off_weight * off_loss + opt.id_weight * id_loss

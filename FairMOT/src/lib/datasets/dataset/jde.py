@@ -360,12 +360,14 @@ class JointDataset(LoadImagesAndLabels):  # for training
         self.tid_start_index = OrderedDict()
         self.num_classes = 1
 
+        # ds is dataset name and path is dataset file with paths
         for ds, path in paths.items():
+            #read the image paths
             with open(path, 'r') as file:
                 self.img_files[ds] = file.readlines()
                 self.img_files[ds] = [osp.join(root, x.strip()) for x in self.img_files[ds]]
                 self.img_files[ds] = list(filter(lambda x: len(x) > 0, self.img_files[ds]))
-
+            # swap extensions/names so that image paths are converted to label paths
             self.label_files[ds] = [
                 x.replace('images', 'labels_with_ids').replace('.png', '.txt').replace('.jpg', '.txt')
                 for x in self.img_files[ds]]
@@ -417,6 +419,7 @@ class JointDataset(LoadImagesAndLabels):  # for training
         img_path = self.img_files[ds][files_index - start_index]
         label_path = self.label_files[ds][files_index - start_index]
 
+        #imgs is a single image weird variable naming maybe becuase of data augmentation its named imgs
         imgs, labels, img_path, (input_h, input_w) = self.get_data(img_path, label_path)
         for i, _ in enumerate(labels):
             if labels[i, 1] > -1:

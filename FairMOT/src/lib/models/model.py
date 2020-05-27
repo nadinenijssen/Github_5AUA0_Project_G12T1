@@ -25,6 +25,8 @@ def load_model(model, model_path, optimizer=None, resume=False,
   checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage)
   print('loaded {}, epoch {}'.format(model_path, checkpoint['epoch']))
   state_dict_ = checkpoint['state_dict']
+  print(type(state_dict_))
+  # print(state_dict_.keys())
   state_dict = {}
   
   # convert data_parallal to model
@@ -59,6 +61,7 @@ def load_model(model, model_path, optimizer=None, resume=False,
   if optimizer is not None and resume:
     if 'optimizer' in checkpoint:
       optimizer.load_state_dict(checkpoint['optimizer'])
+
       start_epoch = checkpoint['epoch']
       start_lr = lr
       for step in lr_step:

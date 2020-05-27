@@ -21,6 +21,7 @@ from trains.mot import MotTrainer
 
 # our custom modifications to pose_hrnet and MOTtrainer
 from models.networks.pose_hrnet_ours import get_pose_net as get_pose_net_hrnet_ours
+from models.networks.pose_hrnet_ours import freeze, freeze_module, print_layers_with_gradients
 from trains.mot_ours import MotTrainer as MotTrainer_ours
 
 
@@ -29,7 +30,7 @@ def main(opt):
     torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.test
 
     print("Setting up data...")
-    trainset_paths = {"mot17": "./data/mot17.train"}
+    trainset_paths = {"mot17": "./data/mot17.training"}
     dataset_root = opt.data_dir
     transforms = T.Compose([T.ToTensor()])
     dataset = JointDataset(
@@ -44,15 +45,19 @@ def main(opt):
     opt.device = torch.device("cuda" if opt.gpus[0] >= 0 else "cpu")
 
     print("Creating model...")
-    # model = create_model(opt.arch, opt.heads, opt.head_conv)
-    model = get_pose_net_hrnet_ours(num_layers=18, heads=opt.heads, head_conv=opt.head_conv)
-    optimizer = torch.optim.Adam(model.parameters(), opt.lr)
+    model = create_model(opt.arch, opt.heads, opt.head_conv)
+    # model = get_pose_net_hrnet_ours(num_layers=18, heads=opt.heads, head_conv=opt.head_conv)
+
+
     start_epoch = 0
+    optimizer = torch.optim.Adam(model.parameters(), opt.lr)
     if opt.load_model != "":
         model, optimizer, start_epoch = load_model(
             model, opt.load_model, optimizer, opt.resume, opt.lr, opt.lr_step
         )
 
+    if opt.freeze:
+        freeze(model)
     # Get dataloader
     train_loader = torch.utils.data.DataLoader(
         dataset,
@@ -64,12 +69,13 @@ def main(opt):
     )
 
     print("Starting training...")
-    #trainer = MotTrainer(opt, model, optimizer)
-    trainer = MotTrainer_ours(opt, model, optimizer)
+    trainer = MotTrainer(opt, model, optimizer)
+    # trainer = MotTrainer_ours(opt, model, optimizer)
     trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
 
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
         mark = epoch if opt.save_all else "last"
+        # print_layers_with_gradients(model)
         log_dict_train, _ = trainer.train(epoch, train_loader)
         logger.write("epoch: {} |".format(epoch))
         for k, v in log_dict_train.items():
