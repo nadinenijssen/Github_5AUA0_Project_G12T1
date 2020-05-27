@@ -14,7 +14,7 @@ from models.utils import _sigmoid, _tranpose_and_gather_feat
 from utils.post_process import ctdet_post_process
 
 from .base_trainer import BaseTrainer
-
+from .softtriple import SoftTriple
 
 class MotLoss(torch.nn.Module):
     def __init__(self, opt):
@@ -28,9 +28,15 @@ class MotLoss(torch.nn.Module):
         self.opt = opt
         self.emb_dim = opt.reid_dim
         self.nID = opt.nID
-        self.classifier = nn.Linear(self.emb_dim, self.nID)
-        self.IDLoss = nn.CrossEntropyLoss(ignore_index=-1)
-        #self.TriLoss = TripletLoss()
+        #self.classifier = nn.Linear(self.emb_dim, 256)
+
+        la = 20
+        gamma = 0.1
+        tau = 0.2
+        margin = 0.01
+        cN = 98
+        K = 10
+        self.softtriple = SoftTriple(la, gamma, tau, margin, self.emb_dim, cN, K)
         self.emb_scale = math.sqrt(2) * math.log(self.nID - 1)
         self.s_det = nn.Parameter(-1.85 * torch.ones(1))
         self.s_id = nn.Parameter(-1.05 * torch.ones(1))
@@ -65,8 +71,9 @@ class MotLoss(torch.nn.Module):
                 id_head = id_head[batch['reg_mask'] > 0].contiguous()
                 id_head = self.emb_scale * F.normalize(id_head)
                 id_target = batch['ids'][batch['reg_mask'] > 0]
-                id_output = self.classifier(id_head).contiguous()
-                id_loss += self.IDLoss(id_output, id_target)
+                #id_output = self.classifier(id_head).contiguous()
+                id_loss += self.softtriple(id_head, id_target)
+                #id_loss += self.IDLoss(id_output, id_target)
                 #id_loss += self.IDLoss(id_output, id_target) + self.TriLoss(id_head, id_target)
 
         #loss = opt.hm_weight * hm_loss + opt.wh_weight * wh_loss + opt.off_weight * off_loss + opt.id_weight * id_loss

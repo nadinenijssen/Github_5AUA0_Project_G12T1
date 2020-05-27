@@ -22,7 +22,7 @@ from trains.mot import MotTrainer
 # our custom modifications to pose_hrnet and MOTtrainer
 from models.networks.pose_hrnet_ours import get_pose_net as get_pose_net_hrnet_ours
 from models.networks.pose_hrnet_ours import freeze, freeze_module, print_layers_with_gradients
-from trains.mot_ours import MotTrainer as MotTrainer_ours
+from trains.mot_softtriple import MotTrainer as MotTrainer_softtriple
 
 
 def main(opt):
@@ -69,8 +69,8 @@ def main(opt):
     )
 
     print("Starting training...")
-    trainer = MotTrainer(opt, model, optimizer)
-    # trainer = MotTrainer_ours(opt, model, optimizer)
+    #trainer = MotTrainer(opt, model, optimizer)
+    trainer = MotTrainer_softtriple(opt, model, optimizer)
     trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
 
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
