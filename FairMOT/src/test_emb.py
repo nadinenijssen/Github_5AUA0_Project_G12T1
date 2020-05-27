@@ -31,13 +31,16 @@ def test_emb(
         img_size=(1088, 608),
         print_interval=40,
 ):
-    data_cfg = opt.data_cfg
-    f = open(data_cfg)
-    data_cfg_dict = json.load(f)
-    f.close()
-    nC = 1
-    test_paths = data_cfg_dict['test_emb']
-    dataset_root = data_cfg_dict['root']
+#     data_cfg = opt.data_cfg
+#     f = open(data_cfg)
+#     data_cfg_dict = json.load(f)
+#     f.close()
+#     nC = 1
+#     test_paths = data_cfg_dict['test_emb']
+#     dataset_root = data_cfg_dict['root']
+    test_paths = {"mot17": "./data/mot17_subset.validation"}
+#     test_paths = {"mot17": "./data/mot17.validation"}
+    dataset_root = opt.data_dir
     if opt.gpus[0] >= 0:
         opt.device = torch.device('cuda')
     else:
@@ -78,7 +81,7 @@ def test_emb(
             print(
                 'Extracting {}/{}, # of instances {}, time {:.2f} sec.'.format(batch_i, len(dataloader), len(id_labels),
                                                                                time.time() - t))
-
+        
     print('Computing pairwise similairity...')
     if len(embedding) < 1:
         return None
@@ -87,7 +90,18 @@ def test_emb(
     n = len(id_labels)
     print(n, len(embedding))
     assert len(embedding) == n
-
+    
+    # save embeddings (own code)
+    embeddings_exp_name = '_'.join(['embeddings', 'MOT17_val', opt.arch, opt.exp_id])
+    embeddings_filename = '.'.join([embeddings_exp_name, 'pt'])
+    embeddings_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', embeddings_filename)
+    torch.save(embedding, embeddings_result_filename)
+    # save targets (own code)
+    labels_exp_name = '_'.join(['labels', 'MOT17_val', opt.arch, opt.exp_id])
+    labels_filename = '.'.join([labels_exp_name, 'pt'])
+    labels_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', labels_filename)
+    torch.save(id_labels, labels_result_filename)
+    
     embedding = F.normalize(embedding, dim=1)
     pdist = torch.mm(embedding, embedding.t()).cpu().numpy()
     gt = id_labels.expand(n, n).eq(id_labels.expand(n, n).t()).numpy()
@@ -102,10 +116,19 @@ def test_emb(
     tar_at_far = [interp(x) for x in far_levels]
     for f, fa in enumerate(far_levels):
         print('TPR@FAR={:.7f}: {:.4f}'.format(fa, tar_at_far[f]))
+        
+    # save TPR (own code)
+    TPR_exp_name = '_'.join(['TPR', 'MOT17_val', opt.arch, opt.exp_id])
+    TPR_filename = '.'.join([TPR_exp_name, 'pt'])
+    TPR_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', TPR_filename)
+    torch.save(tar_at_far, TPR_result_filename)
+
     return tar_at_far
 
 if __name__ == '__main__':
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+#     os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     opt = opts().init()
+    print("gpus", ",".join(map(str, opt.gpus)))
+    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, opt.gpus))
     with torch.no_grad():
         map = test_emb(opt, batch_size=4)
