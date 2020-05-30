@@ -24,6 +24,44 @@ from opts import opts
 from models.decode import mot_decode
 from utils.post_process import ctdet_post_process
 
+import pandas as pd
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+def save_TPR(TPR, far_levels, arch, exp_id):
+    TPR_dict = {'TPR@FAR={:.7f}'.format(k): [TPR[v]] for v, k in enumerate(far_levels)}
+    TPR_dataframe = pd.DataFrame(data=TPR_dict)
+    TPR_exp_name = '_'.join(['TPR', 'MOT17_val', arch, exp_id])
+    TPR_filename = '.'.join([TPR_exp_name, 'xlsx'])
+    TPR_path = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', TPR_filename)
+    writer = pd.ExcelWriter(TPR_path)
+    TPR_dataframe.to_excel(writer)
+    writer.save()
+    
+def plot_embeddings(embeddings, id_labels, arch, exp_id):
+    # Apply t-SNE to embeddings
+    time_start = time.time()
+    tsne = TSNE(n_components=2, verbose=1, perplexity=30, n_iter=300)
+    tsne_results = tsne.fit_transform(embeddings.cpu())
+    print('t-SNE done! Time elapsed: {} seconds'.format(time.time()-time_start))
+    
+    # Plot embeddings
+    plt.figure(figsize=(16,10))
+    sns.scatterplot(
+        x=tsne_results[:,0], y=tsne_results[:,1],
+        hue=id_labels.cpu(),
+        palette=sns.color_palette("hls", len(np.unique(id_labels.cpu()))),
+        legend=False,     #legend="full",
+        alpha=0.3
+    )
+    # Save plot
+    plot_exp_name = '_'.join(['embeddings', 'MOT17_val', arch, exp_id])
+    plot_filename = '.'.join([plot_exp_name, 'png'])
+    plot_path = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', plot_filename)
+    plt.savefig(plot_path)
+
 
 def test_emb(
         opt,
@@ -91,16 +129,8 @@ def test_emb(
     print(n, len(embedding))
     assert len(embedding) == n
     
-    # save embeddings (own code)
-    embeddings_exp_name = '_'.join(['embeddings', 'MOT17_val', opt.arch, opt.exp_id])
-    embeddings_filename = '.'.join([embeddings_exp_name, 'pt'])
-    embeddings_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', embeddings_filename)
-    torch.save(embedding, embeddings_result_filename)
-    # save targets (own code)
-    labels_exp_name = '_'.join(['labels', 'MOT17_val', opt.arch, opt.exp_id])
-    labels_filename = '.'.join([labels_exp_name, 'pt'])
-    labels_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', labels_filename)
-    torch.save(id_labels, labels_result_filename)
+    # make embeddings visualization
+    plot_embeddings(embedding, id_labels, opt.arch, opt.exp_id)
     
     embedding = F.normalize(embedding, dim=1)
     pdist = torch.mm(embedding, embedding.t()).cpu().numpy()
@@ -118,10 +148,7 @@ def test_emb(
         print('TPR@FAR={:.7f}: {:.4f}'.format(fa, tar_at_far[f]))
         
     # save TPR (own code)
-    TPR_exp_name = '_'.join(['TPR', 'MOT17_val', opt.arch, opt.exp_id])
-    TPR_filename = '.'.join([TPR_exp_name, 'pt'])
-    TPR_result_filename = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', TPR_filename)
-    torch.save(tar_at_far, TPR_result_filename)
+    save_TPR(tar_at_far, far_levels, opt.arch, opt.exp_id)
 
     return tar_at_far
 
