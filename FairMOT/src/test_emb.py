@@ -130,7 +130,7 @@ def test_emb(
     assert len(embedding) == n
     
     # make embeddings visualization
-    plot_embeddings(embedding, id_labels, opt.arch, opt.exp_id)
+    plot_embeddings(embedding, id_labels)
     
     embedding = F.normalize(embedding, dim=1)
     pdist = torch.mm(embedding, embedding.t()).cpu().numpy()
@@ -148,7 +148,7 @@ def test_emb(
         print('TPR@FAR={:.7f}: {:.4f}'.format(fa, tar_at_far[f]))
         
     # save TPR (own code)
-    save_TPR(tar_at_far, far_levels, opt.arch, opt.exp_id)
+    save_TPR(tar_at_far, far_levels)
 
     return tar_at_far
 
