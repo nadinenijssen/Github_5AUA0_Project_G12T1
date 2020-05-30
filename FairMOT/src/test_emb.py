@@ -30,17 +30,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def save_TPR(TPR, far_levels, arch, exp_id):
+def save_TPR(TPR, far_levels):
     TPR_dict = {'TPR@FAR={:.7f}'.format(k): [TPR[v]] for v, k in enumerate(far_levels)}
     TPR_dataframe = pd.DataFrame(data=TPR_dict)
-    TPR_exp_name = '_'.join(['TPR', 'MOT17_val', arch, exp_id])
+    TPR_exp_name = '_'.join(['TPR', opt.arch, opt.exp_id])
     TPR_filename = '.'.join([TPR_exp_name, 'xlsx'])
     TPR_path = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', TPR_filename)
     writer = pd.ExcelWriter(TPR_path)
     TPR_dataframe.to_excel(writer)
     writer.save()
     
-def plot_embeddings(embeddings, id_labels, arch, exp_id):
+def plot_embeddings(embeddings, id_labels):
     # Apply t-SNE to embeddings
     time_start = time.time()
     tsne = TSNE(n_components=2, verbose=1, perplexity=30, n_iter=300)
@@ -57,7 +57,7 @@ def plot_embeddings(embeddings, id_labels, arch, exp_id):
         alpha=0.3
     )
     # Save plot
-    plot_exp_name = '_'.join(['embeddings', 'MOT17_val', arch, exp_id])
+    plot_exp_name = '_'.join(['embeddings', opt.arch, opt.exp_id])
     plot_filename = '.'.join([plot_exp_name, 'png'])
     plot_path = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', plot_filename)
     plt.savefig(plot_path)
