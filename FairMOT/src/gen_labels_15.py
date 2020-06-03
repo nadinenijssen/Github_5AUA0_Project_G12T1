@@ -18,6 +18,7 @@ seqs = ['ADL-Rundle-6', 'ETH-Bahnhof', 'KITTI-13', 'PETS09-S2L1', 'TUD-Stadtmitt
 tid_curr = 0
 tid_last = -1
 for seq in seqs:
+    print(seq)
     seq_info = open(osp.join(seq_root, seq, 'seqinfo.ini')).read()
     seq_width = int(seq_info[seq_info.find('imWidth=') + 8:seq_info.find('\nimHeight')])
     seq_height = int(seq_info[seq_info.find('imHeight=') + 9:seq_info.find('\nimExt')])
