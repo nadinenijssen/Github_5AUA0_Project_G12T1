@@ -102,7 +102,7 @@ class opts(object):
                                   ' during validation.')
     # tracking
     self.parser.add_argument('--test_mot16', default=False, help='test mot16')
-    self.parser.add_argument('--val_mot15', default=False, help='val mot15')
+    self.parser.add_argument('--train_mot15', default=False, help='val mot15')
     self.parser.add_argument('--test_mot15', default=False, help='test mot15')
     self.parser.add_argument('--val_mot16', default=False, help='val mot16 or mot15')
     self.parser.add_argument('--test_mot17', default=False, help='test mot17')
