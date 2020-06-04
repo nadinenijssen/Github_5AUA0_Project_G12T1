@@ -216,7 +216,7 @@ if __name__ == '__main__':
                       MOT17-11-SDP'''
         data_root = os.path.join(opt.data_dir, 'MOT17/images/train')
         exp_name = 'MOT17_validation'
-    if opt.val_mot15:
+    if opt.train_mot15:
         seqs_str = '''KITTI-13
                       KITTI-17
                       ETH-Bahnhof
@@ -227,9 +227,9 @@ if __name__ == '__main__':
                       ADL-Rundle-6
                       ADL-Rundle-8
                       ETH-Pedcross2
-                      TUD-Stadtmitte'''
+                      Venice-2'''
         data_root = os.path.join(opt.data_dir, 'MOT15/images/train')
-        exp_name = 'MOT15_val2'
+        exp_name = 'MOT15_train'
     if opt.val_mot20:
         seqs_str = '''MOT20-01
                       MOT20-02
