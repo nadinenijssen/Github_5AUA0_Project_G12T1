@@ -15,6 +15,8 @@ from utils.post_process import ctdet_post_process
 
 from .base_trainer import BaseTrainer
 
+from models.losses import PairLoss
+
 
 class MotLoss(torch.nn.Module):
     def __init__(self, opt):
@@ -31,6 +33,7 @@ class MotLoss(torch.nn.Module):
         self.classifier = nn.Linear(self.emb_dim, self.nID)
         self.IDLoss = nn.CrossEntropyLoss(ignore_index=-1)
         #self.TriLoss = TripletLoss()
+        self.PairLoss = PairLoss()
         self.emb_scale = math.sqrt(2) * math.log(self.nID - 1)
         self.s_det = nn.Parameter(-1.85 * torch.ones(1))
         self.s_id = nn.Parameter(-1.05 * torch.ones(1))
@@ -68,6 +71,7 @@ class MotLoss(torch.nn.Module):
                 id_output = self.classifier(id_head).contiguous() # contigious is so that indexes are corrected for next operations
                 id_loss += self.IDLoss(id_output, id_target) # do crossentropy with target id and 
                 #id_loss += self.IDLoss(id_output, id_target) + self.TriLoss(id_head, id_target)
+                #id_loss += self.PairLoss(id_head)
 
         #loss = opt.hm_weight * hm_loss + opt.wh_weight * wh_loss + opt.off_weight * off_loss + opt.id_weight * id_loss
 

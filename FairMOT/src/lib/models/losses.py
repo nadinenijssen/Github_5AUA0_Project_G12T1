@@ -279,3 +279,40 @@ class TripletLoss(nn.Module):
         if self.mutual:
             return loss, dist
         return loss
+
+class PairLoss(nn.Module):
+    """Pairwise loss with only negatives.
+    Args:
+        margin (float): margin for negative pairs.
+    """
+
+    def __init__(self, margin=1.0):
+        super(PairLoss, self).__init__()
+        self.margin = margin
+        self.ranking_loss = nn.HingeEmbeddingLoss(margin=margin, reduction='sum')
+
+    def forward(self, inputs, indices):
+        """
+        Args:
+            inputs: embeddings at the GT box center locations, shape (?)
+        """
+        anchor_embeddings = inputs # Put all object center embeddings in a list
+        n = anchor_embeddings.size(0) # Get size of that list
+        
+        neg_embeddings = []
+        for i in range(n): # For each anchor embedding in the image:
+            # Select one random other GT object center embedding (a negative)
+            negative = random.choice(anchor_embeddings)
+            # Append embedding of "negative" to list
+            neg_embeddings.append(negative)
+        
+        # Calculate distances between anchor and negative embeddings (Euclidean distance)
+        distance = torch.dist(anchor_embeddings, neg_embeddings, p=2)
+        # Make tensor of -ones > all pairs are negative (different objects)
+        y = -1*torch.ones_like(distance)
+        # Calculate pairwise loss > using HingeEmbeddingLoss from PyTorch
+        loss = self.ranking_loss(distance, y)
+        
+        return loss
+
+
