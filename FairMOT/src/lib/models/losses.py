@@ -303,7 +303,9 @@ class PairLoss(nn.Module):
         neg_embeddings = []
         for i in range(n): # For each anchor embedding in the image:
             # Select one random other GT object center embedding (a negative)
-            m = random.choice(range(0,i) + range(i+1,n)) # Make sure negative is not the anchor
+            N = list(range(0,n))
+            N.remove(i) # Make sure negative is not the anchor
+            m = random.choice(N)
             negative = anchor_embeddings[m]
             # Append embedding of "negative" to list
             neg_embeddings.append(negative)
