@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 from .utils import _tranpose_and_gather_feat
 import torch.nn.functional as F
+import random
 
 
 def _slow_neg_loss(pred, gt):
@@ -291,7 +292,7 @@ class PairLoss(nn.Module):
         self.margin = margin
         self.ranking_loss = nn.HingeEmbeddingLoss(margin=margin, reduction='sum')
 
-    def forward(self, inputs, indices):
+    def forward(self, inputs):
         """
         Args:
             inputs: embeddings at the GT box center locations, shape (?)
@@ -302,7 +303,8 @@ class PairLoss(nn.Module):
         neg_embeddings = []
         for i in range(n): # For each anchor embedding in the image:
             # Select one random other GT object center embedding (a negative)
-            negative = random.choice(anchor_embeddings)
+            m = random.choice(range(0,i) + range(i+1,n)) # Make sure negative is not the anchor
+            negative = anchor_embeddings[m]
             # Append embedding of "negative" to list
             neg_embeddings.append(negative)
         
@@ -314,5 +316,7 @@ class PairLoss(nn.Module):
         loss = self.ranking_loss(distance, y)
         
         return loss
+
+
 
 
