@@ -289,7 +289,7 @@ class JDETracker(object):
         #for strack in strack_pool:
             #strack.predict()
         STrack.multi_predict(strack_pool)
-        dists = matching.embedding_distance(strack_pool, detections)
+        dists = matching.embedding_distance(strack_pool, detections, metric=self.opt.distance_metric)
         #dists = matching.gate_cost_matrix(self.kalman_filter, dists, strack_pool, detections)
         dists = matching.fuse_motion(self.kalman_filter, dists, strack_pool, detections)
         matches, u_track, u_detection = matching.linear_assignment(dists, thresh=0.7)

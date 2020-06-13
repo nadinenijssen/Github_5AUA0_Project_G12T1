@@ -111,6 +111,7 @@ class opts(object):
     self.parser.add_argument('--test_mot17', default=False, help='test mot17')
     self.parser.add_argument('--val_mot17', default=False, help='val mot17')
     self.parser.add_argument('--training_mot17', default=False, help='training mot17')
+    self.parser.add_argument('--training_mot17_13', default=False, help='training mot17 video sequence 13')
     self.parser.add_argument('--validation_mot17', default=False, help='validation mot17')
     self.parser.add_argument('--val_mot20', default=False, help='val mot20')
     self.parser.add_argument('--test_mot20', default=False, help='test mot20')
@@ -123,6 +124,7 @@ class opts(object):
     self.parser.add_argument('--output-format', type=str, default='video', help='video or text')
     self.parser.add_argument('--output-root', type=str, default='../results', help='expected output root path')
 
+    
     # mot
 #     self.parser.add_argument('--data_cfg', type=str,
 #                              default='../src/lib/cfg/data.json',
@@ -153,7 +155,8 @@ class opts(object):
     self.parser.add_argument('--pairwise_margin', type=float, default=10.0,
                              help='margin for pairwise loss')                         
     self.parser.add_argument('--pairwise_sampling', default='hardest',
-                             help='sampling method for pairwise loss: random | hardest')                         
+                             help='sampling method for pairwise loss: random | hardest')
+    self.parser.add_argument('--distance_metric', type=str, default='cosine', help='distance calculation of tracker: cosine | euclidean')                             
 
     self.parser.add_argument('--norm_wh', action='store_true',
                              help='L1(\hat(y) / y, 1) or L1(\hat(y), y)')
