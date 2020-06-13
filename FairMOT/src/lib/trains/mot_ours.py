@@ -69,7 +69,7 @@ class MotLoss(torch.nn.Module):
                 id_head = self.emb_scale * F.normalize(id_head) #  normalize 
                 id_target = batch['ids'][batch['reg_mask'] > 0] # get target id where reg_mask = 1 meaning there was a label
                 id_output = self.classifier(id_head).contiguous() # contigious is so that indexes are corrected for next operations
-                if opt.id_loss == 'pairwise'
+                if opt.id_loss == 'pairwise':
                     id_loss += self.PairLoss(id_head)
                 # elif opt.id_loss == 'triplet'
                     # id_loss += self.IDLoss(id_output, id_target) + self.TriLoss(id_head, id_target)
