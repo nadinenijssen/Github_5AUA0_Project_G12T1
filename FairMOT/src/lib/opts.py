@@ -88,6 +88,9 @@ class opts(object):
                                   'test on test set')
     self.parser.add_argument('--freeze', action='store_true',
                              help='freeze model untill self.last_layer')
+                             
+    self.parser.add_argument('--train_data', default={"mot17": "./data/mot17.training"})
+
 
     # test
     self.parser.add_argument('--K', type=int, default=128,
@@ -140,11 +143,17 @@ class opts(object):
     self.parser.add_argument('--wh_weight', type=float, default=0.1,
                              help='loss weight for bounding box size.')
     self.parser.add_argument('--id_loss', default='ce',
-                             help='reid loss: ce | triplet')
+                             help='reid loss: ce | triplet | pairwise')
     self.parser.add_argument('--id_weight', type=float, default=1,
                              help='loss weight for id')
     self.parser.add_argument('--reid_dim', type=int, default=512,
                              help='feature dim for reid')
+    
+    # Pairwise loss additions
+    self.parser.add_argument('--pairwise_margin', type=float, default=10.0,
+                             help='margin for pairwise loss')                         
+    self.parser.add_argument('--pairwise_sampling', default='hardest',
+                             help='sampling method for pairwise loss: random | hardest')                         
 
     self.parser.add_argument('--norm_wh', action='store_true',
                              help='L1(\hat(y) / y, 1) or L1(\hat(y), y)')

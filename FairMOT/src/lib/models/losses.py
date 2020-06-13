@@ -286,14 +286,16 @@ class PairLoss(nn.Module):
     """Pairwise loss with only negatives.
     Args:
         margin (float): margin for negative pairs.
-        hardest: if True hardest negative is taken, if False random negative is taken
+        sampling: method of sampling/mingin, options:
+           -    'random' = random negative
+           -    'hardest' = hardest negative
     """
 
-    def __init__(self, margin=10.0, hardest=False):
+    def __init__(self, margin=10.0, sampling='hardest'):
         super(PairLoss, self).__init__()
         self.margin = margin
         self.ranking_loss = nn.HingeEmbeddingLoss(margin=margin, reduction='sum')
-        self.hardest = hardest
+        self.sampling = sampling
 
     def forward(self, inputs):
         """
@@ -303,18 +305,7 @@ class PairLoss(nn.Module):
         anchor_embeddings = inputs # Put all object center embeddings in a list
         n = anchor_embeddings.size(0) # Get size of that list
         
-        if self.hardest:
-            distance = float('inf')*torch.ones(n, device=anchor_embeddings.device) # Set large distance
-            for i in range(n): # For each anchor embedding in the image:
-                N = list(range(0,n))
-                N.remove(i)
-                for k in N: # For all the negatives
-                    # Calculate distances between anchor and negative embeddings (Euclidean distance)
-                    distance_next = torch.dist(anchor_embeddings[i], anchor_embeddings[k], p=2)
-                    if distance_next < distance[i]: # Store the smallest distance = hardest negative
-                        distance[i] = distance_next
-
-        else:
+        if self.sampling == 'random':
             neg_embeddings = []
             distance = []
             for i in range(n): # For each anchor embedding in the image:
@@ -326,7 +317,20 @@ class PairLoss(nn.Module):
                 distance.append(torch.dist(anchor_embeddings[i], anchor_embeddings[m], p=2).unsqueeze(0))
 
             distance = torch.cat(distance) # list to tensor
-
+            
+        else:
+            if self.sampling != 'hardest':
+                print('No valid sampling method given. Using \'hardest\' sampling (default) instead')
+            distance = float('inf')*torch.ones(n, device=anchor_embeddings.device) # Set large distance
+            for i in range(n): # For each anchor embedding in the image:
+                N = list(range(0,n))
+                N.remove(i)
+                for k in N: # For all the negatives
+                    # Calculate distances between anchor and negative embeddings (Euclidean distance)
+                    distance_next = torch.dist(anchor_embeddings[i], anchor_embeddings[k], p=2)
+                    if distance_next < distance[i]: # Store the smallest distance = hardest negative
+                        distance[i] = distance_next
+ 
         # Make tensor of -ones > all pairs are negative (different objects)
         y = -1*torch.ones_like(distance)
         # Calculate pairwise loss > using HingeEmbeddingLoss from PyTorch

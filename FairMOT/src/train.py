@@ -23,14 +23,14 @@ from trains.mot import MotTrainer
 from models.networks.pose_hrnet_ours import get_pose_net as get_pose_net_hrnet_ours
 from models.networks.pose_hrnet_ours import freeze, freeze_module, print_layers_with_gradients
 from trains.mot_softtriple import MotTrainer as MotTrainer_softtriple
-
+from trains.mot_ours import MotTrainer as MotTrainer_ours
 
 def main(opt):
     torch.manual_seed(opt.seed)
     torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.test
 
     print("Setting up data...")
-    trainset_paths = {"mot17": "./data/mot17.training"}
+    trainset_paths = opt.train_data  #{"mot17": "./data/mot17.training"}
     dataset_root = opt.data_dir
     transforms = T.Compose([T.ToTensor()])
     dataset = JointDataset(
@@ -45,8 +45,8 @@ def main(opt):
     opt.device = torch.device("cuda" if opt.gpus[0] >= 0 else "cpu")
 
     print("Creating model...")
-    model = create_model(opt.arch, opt.heads, opt.head_conv)
-    # model = get_pose_net_hrnet_ours(num_layers=18, heads=opt.heads, head_conv=opt.head_conv)
+    # model = create_model(opt.arch, opt.heads, opt.head_conv)
+    model = get_pose_net_hrnet_ours(num_layers=18, heads=opt.heads, head_conv=opt.head_conv)
 
 
     start_epoch = 0
@@ -70,7 +70,8 @@ def main(opt):
 
     print("Starting training...")
     #trainer = MotTrainer(opt, model, optimizer)
-    trainer = MotTrainer_softtriple(opt, model, optimizer)
+    # trainer = MotTrainer_softtriple(opt, model, optimizer)
+    trainer = MotTrainer_ours(opt, model, optimizer)
     trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
 
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
