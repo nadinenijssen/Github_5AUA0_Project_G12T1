@@ -89,7 +89,7 @@ class opts(object):
     self.parser.add_argument('--freeze', action='store_true',
                              help='freeze model untill self.last_layer')
                              
-    self.parser.add_argument('--train_data', default={"mot17": "./data/mot17.training"})
+    self.parser.add_argument('--train_data', type=str, default="./data/mot17.training")
 
 
     # test
