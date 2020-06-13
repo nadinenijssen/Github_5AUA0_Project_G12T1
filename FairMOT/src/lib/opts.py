@@ -90,6 +90,7 @@ class opts(object):
                              help='freeze model untill self.last_layer')
                              
     self.parser.add_argument('--train_data', type=str, default="./data/mot17.training")
+    self.parser.add_argument('--test_emb_data', type=str, default="./data/mot17.validation")
 
 
     # test
