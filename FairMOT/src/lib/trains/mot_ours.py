@@ -74,8 +74,6 @@ class MotLoss(torch.nn.Module):
                 # elif opt.id_loss == 'triplet'
                     # id_loss += self.IDLoss(id_output, id_target) + self.TriLoss(id_head, id_target)
                 else:
-                    if opt.id_loss != 'ce':
-                        print('No valid id loss function given. Using \'ce\' (default) instead')
                     id_loss += self.IDLoss(id_output, id_target) # do crossentropy with target id and 
 
         #loss = opt.hm_weight * hm_loss + opt.wh_weight * wh_loss + opt.off_weight * off_loss + opt.id_weight * id_loss
