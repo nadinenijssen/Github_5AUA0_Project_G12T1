@@ -319,8 +319,6 @@ class PairLoss(nn.Module):
             distance = torch.cat(distance) # list to tensor
             
         else:
-            if self.sampling != 'hardest':
-                print('No valid sampling method given. Using \'hardest\' sampling (default) instead')
             distance = float('inf')*torch.ones(n, device=anchor_embeddings.device) # Set large distance
             for i in range(n): # For each anchor embedding in the image:
                 N = list(range(0,n))
