@@ -382,7 +382,6 @@ class PairLoss(nn.Module):
           pos_embeddings = emb_scale * F.normalize(pos_embeddings)
 
           if len(pos_embeddings) == n:
-              print('same length')
               pos_distance = []
               for i in range(n): # For each anchor embedding in the image:
                   # Calculate distances between anchor and positive embeddings (Euclidean distance)
