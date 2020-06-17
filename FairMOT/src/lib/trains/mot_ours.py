@@ -17,6 +17,7 @@ from .base_trainer import BaseTrainer
 
 from models.losses import PairLoss
 
+import pdb # for debugging/ saving variables
 
 class MotLoss(torch.nn.Module):
     def __init__(self, opt):
@@ -33,7 +34,7 @@ class MotLoss(torch.nn.Module):
         self.classifier = nn.Linear(self.emb_dim, self.nID)
         self.IDLoss = nn.CrossEntropyLoss(ignore_index=-1)
         #self.TriLoss = TripletLoss()
-        self.PairLoss = PairLoss(margin=opt.pairwise_margin, sampling=opt.pairwise_sampling)
+        self.PairLoss = PairLoss(margin=opt.pairwise_margin, sampling=opt.pairwise_sampling, positives=opt.positives_sampling)
         self.emb_scale = math.sqrt(2) * math.log(self.nID - 1)
         self.s_det = nn.Parameter(-1.85 * torch.ones(1))
         self.s_id = nn.Parameter(-1.05 * torch.ones(1))
@@ -64,13 +65,14 @@ class MotLoss(torch.nn.Module):
                                           batch['ind'], batch['reg']) / opt.num_stacks
 
             if opt.id_weight > 0:
+                # pdb.set_trace()
                 id_head = _tranpose_and_gather_feat(output['id'], batch['ind']) #convert E to E_xy i think?
                 id_head = id_head[batch['reg_mask'] > 0].contiguous() # remove part of tensor without labels ?
                 id_head = self.emb_scale * F.normalize(id_head) #  normalize 
                 id_target = batch['ids'][batch['reg_mask'] > 0] # get target id where reg_mask = 1 meaning there was a label
                 id_output = self.classifier(id_head).contiguous() # contigious is so that indexes are corrected for next operations
                 if opt.id_loss == 'pairwise':
-                    id_loss += self.PairLoss(id_head)
+                    id_loss += self.PairLoss(id_head, output['id'], batch, self.emb_scale)
                 # elif opt.id_loss == 'triplet'
                     # id_loss += self.IDLoss(id_output, id_target) + self.TriLoss(id_head, id_target)
                 else:

@@ -156,8 +156,11 @@ class opts(object):
     self.parser.add_argument('--pairwise_margin', type=float, default=10.0,
                              help='margin for pairwise loss')                         
     self.parser.add_argument('--pairwise_sampling', default='hardest',
-                             help='sampling method for pairwise loss: random | hardest')
-    self.parser.add_argument('--distance_metric', type=str, default='cosine', help='distance calculation of tracker: cosine | euclidean')                             
+                             help='negatives sampling method for pairwise loss: random | hardest')
+    self.parser.add_argument('--positives_sampling', default=False,
+                             help='do or do not use positives for sampling for pairwise loss')
+    self.parser.add_argument('--distance_metric', type=str, default='cosine',
+                             help='distance calculation of tracker: cosine | euclidean')
 
     self.parser.add_argument('--norm_wh', action='store_true',
                              help='L1(\hat(y) / y, 1) or L1(\hat(y), y)')
