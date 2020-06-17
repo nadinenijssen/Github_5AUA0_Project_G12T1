@@ -398,7 +398,7 @@ class PairLoss(nn.Module):
           y = torch.cat((neg_y,pos_y)) # concatenate negative and positive y label
         
         else: # no positives, only negatives
-          print('only negative')
+#           print('only negative')
           distance = neg_distance
           y = -1*torch.ones_like(neg_distance)
 
