@@ -305,7 +305,7 @@ class PairLoss(nn.Module):
     def __init__(self, margin=10.0, sampling='hardest', positives=False):
         super(PairLoss, self).__init__()
         self.margin = margin
-        self.ranking_loss = nn.HingeEmbeddingLoss(margin=margin, reduction='sum')
+        self.ranking_loss = nn.HingeEmbeddingLoss(margin=margin, reduction='mean') #reduction='sum'
         self.sampling = sampling
         self.positives = positives
 
