@@ -532,9 +532,9 @@ def get_pose_net(num_layers, heads, head_conv):
     return model
 
 
-def freeze(model):
+def freeze(model, layers):
     for name, module in model.named_children():
-        if name not in ["last_layer", "hm", "wh", "id", "reg"]:
+        if name not in layers:
             freeze_module(module)
         else:
             print("initialzing weights of ", name)

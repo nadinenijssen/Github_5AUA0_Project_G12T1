@@ -56,8 +56,14 @@ def main(opt):
             model, opt.load_model, optimizer, opt.resume, opt.lr, opt.lr_step
         )
 
-    if opt.freeze:
-        freeze(model)
+    if opt.freeze == 'backbone':
+        print('freezing backbone')
+        freeze(model, ["last_layer", "hm", "wh", "id", "reg"])
+    elif opt.freeze == 'backbone_det':
+        print('freezing backbone+det')
+        freeze(model, ["id"])
+    
+
     # Get dataloader
     train_loader = torch.utils.data.DataLoader(
         dataset,

@@ -86,8 +86,8 @@ class opts(object):
     self.parser.add_argument('--trainval', action='store_true',
                              help='include validation in training and '
                                   'test on test set')
-    self.parser.add_argument('--freeze', action='store_true',
-                             help='freeze model untill self.last_layer')
+    self.parser.add_argument('--freeze', type=str,
+                             help='freeze model except specified layers')
                              
     self.parser.add_argument('--train_data', type=str, default="./data/mot17.training")
     self.parser.add_argument('--test_emb_data', type=str, default="./data/mot17.validation")
