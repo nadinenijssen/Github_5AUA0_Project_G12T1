@@ -351,6 +351,7 @@ class PairLoss(nn.Module):
                 if batch['reg_mask'][j,i].cpu().numpy():
                     # get x,y
                     emb_w = output_id.shape[3] # width of the embeddings map
+                    emb_h = output_id.shape[2] # height of the embeddings map
                     y, x = divmod(batch['ind'][j,i].cpu().numpy(), emb_w) # extract x and y coordinate of anchor
                     # get radius
                     w, h = wh_decode(batch['wh'][j,i])
@@ -362,15 +363,15 @@ class PairLoss(nn.Module):
                     if rnd[0]:
                       pos_x = x
                       if rnd[1]:
-                        pos_y = y + math.floor(rad_frac*radius)
+                        pos_y = min(emb_h, y + math.floor(rad_frac*radius))
                       else:
-                        pos_y = y - math.floor(rad_frac*radius)
+                        pos_y = max(0, y - math.floor(rad_frac*radius))
                     else:
                       pos_y = y
                       if rnd[1]:
-                        pos_x = x + math.floor(rad_frac*radius)
+                        pos_x = min(emb_w, x + math.floor(rad_frac*radius))
                       else:
-                        pos_x = x - math.floor(rad_frac*radius)
+                        pos_x = max(0, x - math.floor(rad_frac*radius))
                     # transform that to (batch['ind'] >) single number format
                     pos_ind.append(pos_y * emb_w + pos_x)
             pos_ind_t = torch.Tensor(pos_ind)
