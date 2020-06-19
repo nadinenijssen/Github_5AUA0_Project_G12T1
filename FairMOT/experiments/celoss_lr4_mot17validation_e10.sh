@@ -1,5 +1,5 @@
 cd src
-python train.py mot --exp_id celoss_lr4_mot17validation_e10 \
+python track.py mot --exp_id celoss_lr4_mot17validation_e10 \
 --gpus '0' --reid_dim 128 --arch 'hrnet_18' \
 --load_model ../exp/mot/celoss_lr4_mot17training_e10/model_last.pth \
 --validation_mot17 True \
