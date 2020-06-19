@@ -78,6 +78,7 @@ def main(opt):
     #trainer = MotTrainer(opt, model, optimizer)
     # trainer = MotTrainer_softtriple(opt, model, optimizer)
     trainer = MotTrainer_ours(opt, model, optimizer)
+    print(opt.gpus)
     trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
 
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
