@@ -309,41 +309,51 @@ class PairLoss(nn.Module):
         self.sampling = sampling
         self.positives = positives
 
-    def forward(self, inputs, output_id, batch, emb_scale):
+    def forward(self, output_id, batch, emb_scale):
         """
         Args:
-            inputs: embeddings at the GT box center locations, shape (batch_size, reid_dim)
             output_id: embeddings map
             batch: information dataset, ground truth bounding boxes etc.
         """
-        anchor_embeddings = inputs # Put all object center embeddings in a list
-        n = anchor_embeddings.size(0) # Get size of that list
         
-        if self.sampling == 'random':
-            neg_distance = []
-            for i in range(n): # For each anchor embedding in the image:
+        id_head_all = _tranpose_and_gather_feat(output_id, batch['ind']) # Object center embeddings of the whole batch
+        
+        # negatives
+        neg_distance = []
+        # sample negatives per image in the batch (s_ means single, from single image)
+        for b in range(id_head_all.shape[0]):
+          s_id_head = id_head_all[b] # embeddings for one image in the batch
+          s_anchor_embeddings = s_id_head[batch['reg_mask'][b] > 0].contiguous() # remove embeddings without GT location
+          s_anchor_embeddings = emb_scale * F.normalize(s_anchor_embeddings) # normalize
+          s_n = s_anchor_embeddings.size(0) # number of anchors in this image
+          if self.sampling == 'random': # random negatives sampling
+            for i in range(s_n): # For each anchor embedding in the image:
                 # Select one random other GT object center embedding (a negative)
-                N = list(range(0,n))
+                N = list(range(0,s_n))
                 N.remove(i) # Make sure negative is not the anchor
                 m = random.choice(N)
                 # Calculate distances between anchor and negative embeddings (Euclidean distance)
-                neg_distance.append(torch.dist(anchor_embeddings[i], anchor_embeddings[m], p=2).unsqueeze(0))
-
-            neg_distance = torch.cat(neg_distance) # list to tensor
-            
-        else:
-            neg_distance = float('inf')*torch.ones(n, device=anchor_embeddings.device) # Set large distance
-            for i in range(n): # For each anchor embedding in the image:
-                N = list(range(0,n))
-                N.remove(i)
-                for k in N: # For all the negatives
-                    # Calculate distances between anchor and negative embeddings (Euclidean distance)
-                    neg_distance_next = torch.dist(anchor_embeddings[i], anchor_embeddings[k], p=2)
-                    if neg_distance_next < neg_distance[i]: # Store the smallest distance = hardest negative
-                        neg_distance[i] = neg_distance_next
+                neg_distance.append(torch.dist(s_anchor_embeddings[i], s_anchor_embeddings[m], p=2).unsqueeze(0))
+              
+          else: # hardest negatives sampling
+            s_neg_distance = float('inf')*torch.ones(s_n, device=s_anchor_embeddings.device) # Set large distance
+            for i in range(s_n): # For each anchor embedding in the image:
+              N = list(range(0,s_n))
+              N.remove(i)
+              for k in N: # For all the negatives
+              # Calculate distances between anchor and negative embeddings (Euclidean distance)
+                neg_distance_next = torch.dist(s_anchor_embeddings[i], s_anchor_embeddings[k], p=2)
+                if neg_distance_next < s_neg_distance[i]: # Store the smallest distance = hardest negative
+                  s_neg_distance[i] = neg_distance_next
+            neg_distance.append(s_neg_distance)
+        neg_distance = torch.cat(neg_distance) # list to tensor
         
+        # positives sampling
         if self.positives:
-          # positives
+          anchor_embeddings = id_head_all[batch['reg_mask'] > 0].contiguous() # remove embeddings without GT location
+          anchor_embeddings = emb_scale * F.normalize(anchor_embeddings) # normalize
+          n = anchor_embeddings.size(0) # get total number of anchors
+          
           pos_indj = torch.zeros_like(batch['ind'])
           for j in range(batch['reg_mask'].shape[0]):
             pos_ind = []
@@ -363,13 +373,13 @@ class PairLoss(nn.Module):
                     if rnd[0]:
                       pos_x = x
                       if rnd[1]:
-                        pos_y = min(emb_h, y + math.floor(rad_frac*radius))
+                        pos_y = min(emb_h-1, y + math.floor(rad_frac*radius))
                       else:
                         pos_y = max(0, y - math.floor(rad_frac*radius))
                     else:
                       pos_y = y
                       if rnd[1]:
-                        pos_x = min(emb_w, x + math.floor(rad_frac*radius))
+                        pos_x = min(emb_w-1, x + math.floor(rad_frac*radius))
                       else:
                         pos_x = max(0, x - math.floor(rad_frac*radius))
                     # transform that to (batch['ind'] >) single number format
@@ -379,7 +389,7 @@ class PairLoss(nn.Module):
 
           # extract embedding from output feature map
           pos_embeddings = _tranpose_and_gather_feat(output_id, pos_indj)
-          pos_embeddings = pos_embeddings[pos_indj > 0].contiguous()
+          pos_embeddings = pos_embeddings[batch['reg_mask'] > 0].contiguous()
           pos_embeddings = emb_scale * F.normalize(pos_embeddings)
 
           if len(pos_embeddings) == n:
@@ -397,9 +407,9 @@ class PairLoss(nn.Module):
           neg_y = -1*torch.ones_like(neg_distance) # Make tensor of -ones > negative pairs (different objects)
           pos_y = torch.ones_like(pos_distance) # Make tensor of ones > positive pair
           y = torch.cat((neg_y,pos_y)) # concatenate negative and positive y label
-        
+
         else: # no positives, only negatives
-#           print('only negative')
+          # print('only negative')
           distance = neg_distance
           y = -1*torch.ones_like(neg_distance)
 
@@ -407,3 +417,4 @@ class PairLoss(nn.Module):
         loss = self.ranking_loss(distance, y)
         
         return loss
+        
