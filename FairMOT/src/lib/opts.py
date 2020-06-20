@@ -161,6 +161,8 @@ class opts(object):
                              help='negatives sampling method for pairwise loss: random | hardest')
     self.parser.add_argument('--positives_sampling', default=False,
                              help='do or do not use positives for sampling for pairwise loss')
+    self.parser.add_argument('--distance_func', type=str, default='euclidean',
+                             help='distance calulation between embeddings: euclidean | cosine')                         
     self.parser.add_argument('--distance_metric', type=str, default='cosine',
                              help='distance calculation of tracker: cosine | euclidean')
 

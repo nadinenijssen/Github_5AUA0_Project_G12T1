@@ -293,6 +293,9 @@ class TripletLoss(nn.Module):
 class PairLoss(nn.Module):
     """Pairwise loss with only negatives.
     Args:
+        distance_func: function used for calculating distance between embeddings
+           -    'euclidean'
+           -    'cosine'
         margin (float): margin for negative pairs.
         sampling: method of sampling/mining, options:
            -    'random' = random negative
@@ -302,12 +305,14 @@ class PairLoss(nn.Module):
            -    True = negative and positive pairs used
     """
 
-    def __init__(self, margin=10.0, sampling='hardest', positives=False):
+    def __init__(self, distance_func='euclidean', margin=10.0, sampling='hardest', positives=False):
         super(PairLoss, self).__init__()
         self.margin = margin
         self.ranking_loss = nn.HingeEmbeddingLoss(margin=margin, reduction='mean') #reduction='sum'
         self.sampling = sampling
         self.positives = positives
+        self.distance_func = distance_func
+        self.cos_distance = nn.CosineSimilarity(dim=0)
 
     def forward(self, output_id, batch, emb_scale):
         """
@@ -333,7 +338,10 @@ class PairLoss(nn.Module):
                 N.remove(i) # Make sure negative is not the anchor
                 m = random.choice(N)
                 # Calculate distances between anchor and negative embeddings (Euclidean distance)
-                neg_distance.append(torch.dist(s_anchor_embeddings[i], s_anchor_embeddings[m], p=2).unsqueeze(0))
+                if self.distance_func == 'cosine':
+                  neg_distance.append(1-self.cos_distance(s_anchor_embeddings[i], s_anchor_embeddings[m]).unsqueeze(0))
+                else: # distance_func == 'euclidean'
+                  neg_distance.append(torch.dist(s_anchor_embeddings[i], s_anchor_embeddings[m], p=2).unsqueeze(0))
               
           else: # hardest negatives sampling
             s_neg_distance = float('inf')*torch.ones(s_n, device=s_anchor_embeddings.device) # Set large distance
@@ -342,7 +350,10 @@ class PairLoss(nn.Module):
               N.remove(i)
               for k in N: # For all the negatives
               # Calculate distances between anchor and negative embeddings (Euclidean distance)
-                neg_distance_next = torch.dist(s_anchor_embeddings[i], s_anchor_embeddings[k], p=2)
+                if self.distance_func == 'cosine':
+                  neg_distance_next = 1-self.cos_distance(s_anchor_embeddings[i], s_anchor_embeddings[k])
+                else: # distance_func == 'euclidean'
+                  neg_distance_next = torch.dist(s_anchor_embeddings[i], s_anchor_embeddings[k], p=2)
                 if neg_distance_next < s_neg_distance[i]: # Store the smallest distance = hardest negative
                   s_neg_distance[i] = neg_distance_next
             neg_distance.append(s_neg_distance)
@@ -365,7 +376,7 @@ class PairLoss(nn.Module):
                     y, x = divmod(batch['ind'][j,i].cpu().numpy(), emb_w) # extract x and y coordinate of anchor
                     # get radius
                     w, h = wh_decode(batch['wh'][j,i])
-                    radius = gaussian_radius((math.ceil(h), math.ceil(w)))
+                    radius = 0.25*gaussian_radius((math.ceil(h), math.ceil(w)))
                     radius = max(0, int(radius))
                     # shift x,y with fraction of the radius
                     rad_frac = 0.5 # fraction radius distance from centerpoint
@@ -396,7 +407,10 @@ class PairLoss(nn.Module):
               pos_distance = []
               for i in range(n): # For each anchor embedding in the image:
                   # Calculate distances between anchor and positive embeddings (Euclidean distance)
-                  pos_distance.append(torch.dist(anchor_embeddings[i], pos_embeddings[i], p=2).unsqueeze(0))
+                  if self.distance_func == 'cosine':
+                    pos_distance.append(1-self.cos_distance(anchor_embeddings[i], pos_embeddings[i]).unsqueeze(0))
+                  else: # distance_func == 'euclidean'
+                    pos_distance.append(torch.dist(anchor_embeddings[i], pos_embeddings[i], p=2).unsqueeze(0))
               pos_distance = torch.cat(pos_distance) # list to tensor
                     
           else:
@@ -417,4 +431,3 @@ class PairLoss(nn.Module):
         loss = self.ranking_loss(distance, y)
         
         return loss
-        
