@@ -117,7 +117,7 @@ def test_emb(
     # Get dataloader
     transforms = T.Compose([T.ToTensor()])
     dataset = JointDataset(opt, dataset_root, test_paths, img_size, augment=False, transforms=transforms)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False,
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False,
                                              num_workers=8, drop_last=False)
     embedding, id_labels = [], []
     print('Extracting pedestrain features...')
@@ -162,30 +162,31 @@ def test_emb(
             # print(radiuslist[sort_index[i]])
             patcheslist_lbb.append(patcheslist[sort_index[i]])
 
-        # # Create figure and axes
-        # fig, (ax1,ax2) = plt.subplots(2)
-
-        # colors = 100*np.random.rand(len(patcheslist_lbb))
-        # p = PatchCollection(patcheslist_lbb, alpha=0.4)
-        # p.set_array(np.array(colors))
-        # ax1.add_collection(p)
-
-
-        # # Display the image
-        # ax1.imshow(img_np)
-
-        # # Create a Rectangle patch
-        # #rect = patches.Rectangle((50,100),40,30,linewidth=1,edgecolor='r',facecolor='none')
-
-        # # Add the patch to the Axes
-        # #ax1.add_patch(rect)
-        # # print(batch['hm'].shape)
-        # ax2.imshow(batch['hm'][0,0,:,:])
-        # # Save plot
-        # # plot_exp_name = '_'.join(['bb{}'.format(batch_i), opt.arch, opt.exp_id])
-        # # plot_filename = '.'.join([plot_exp_name, 'png'])
-        # # plot_path = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', plot_filename)
-        # # plt.savefig(plot_path)
+        # if batch_i == 0 or batch_i == 9:
+        #     # Create figure and axes
+        #     fig, (ax1,ax2) = plt.subplots(2)
+    
+        #     colors = 100*np.random.rand(len(patcheslist_lbb))
+        #     p = PatchCollection(patcheslist_lbb, alpha=0.4)
+        #     p.set_array(np.array(colors))
+        #     ax1.add_collection(p)
+    
+    
+        #     # Display the image
+        #     ax1.imshow(img_np)
+    
+        #     # Create a Rectangle patch
+        #     #rect = patches.Rectangle((50,100),40,30,linewidth=1,edgecolor='r',facecolor='none')
+    
+        #     # Add the patch to the Axes
+        #     #ax1.add_patch(rect)
+        #     # print(batch['hm'].shape)
+        #     ax2.imshow(batch['hm'][0,0,:,:])
+        #     # Save plot
+        #     plot_exp_name = '_'.join(['bb{}'.format(batch_i), opt.arch, opt.exp_id])
+        #     plot_filename = '.'.join([plot_exp_name, 'png'])
+        #     plot_path = os.path.join('/content/gdrive/My Drive/5AUA0_Project_Group12_Team1/Github_5AUA0_Project_G12T1/FairMOT/results/embeddings', plot_filename)
+        #     plt.savefig(plot_path)
         
         output = model(batch['input'].cuda())[-1]
         id_head = _tranpose_and_gather_feat(output['id'], batch['ind'].cuda())
@@ -240,8 +241,8 @@ def test_emb(
                 'Extracting {}/{}, # of instances {}, time {:.2f} sec.'.format(batch_i, len(dataloader), len(id_labels),
                                                                                time.time() - t))
                                                                                
-        # if batch_i == 9:
-        #     break                                                          
+        if batch_i == 99:
+            break                                                          
         
     print('Computing pairwise similairity...')
     if len(embedding) < 1:
